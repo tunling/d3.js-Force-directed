@@ -8,7 +8,7 @@
 * 添加、删除边
 
 ## d3.js配置
-* 可以到官网下载，也可以简单地使用 <script type="text/javascript" src="http://d3js.org/d3.v5.min.js"> 导入
+* 可以到官网下载，也可以简单地使用 <script type="text/javascript" src="http://d3js.org/d3.v5.min.js"></script> 导入
   
 ## 学习d3.js的关键点
 * 理解d3.js的核心：绑定DOM和数据，可以通过修改数据来直接调整DOM

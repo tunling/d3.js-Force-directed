@@ -1,0 +1,21 @@
+input[type="range"] {
+    -webkit-appearance: none;
+    margin-top: 42px;
+    background-color: #ebeff4;
+    width: 50%;
+    height:4px;
+    padding: 0;
+    border: none;
+}
+input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    cursor: default;
+    top: 0;
+    height: 15px;
+    width: 15px;
+    transform: translateY(0px);
+    background: #fff;
+    border-radius: 15px;
+    border: 5px solid #006eb3;
+}
+

@@ -8,7 +8,7 @@
 ## d3.js配置
 * 可以到官网下载，也可以简单地使用 <script type="text/javascript" src="http://d3js.org/d3.v5.min.js"> 导入
 *d3.js的关键在于绑定DOM和数据，可以通过修改数据来直接调整DOM
-## 学习d3.js的关键点：
+## 学习d3.js的关键点
 * 选择器的使用
 * 对enter、update、exit的理解
 * 学习需要的d3.js的API

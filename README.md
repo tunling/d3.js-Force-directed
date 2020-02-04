@@ -7,11 +7,12 @@
 * 添加、删除节点
 * 添加、删除边
 
-## d3.js配置
+## d3.js及配置
 * 可以到官网下载，也可以简单地使用 <script type="text/javascript" src="http://d3js.org/d3.v5.min.js"></script> 导入
+* 理解d3.js的核心：绑定DOM和数据，可以通过修改数据来直接调整DOM
+* 双击打开v5.html即可预览本项目
   
 ## 学习d3.js的关键点
-* 理解d3.js的核心：绑定DOM和数据，可以通过修改数据来直接调整DOM
 * 选择器的使用
 * 对enter、update、exit的理解
 * 学习要用的API

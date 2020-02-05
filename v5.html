@@ -5,241 +5,81 @@
 	<link rel="stylesheet" type="text/css" href="style.css" />
 	<script src="https://d3js.org/d3.v5.min.js"></script>
 	<script src="https://cdn.bootcss.com/jquery/3.4.1/jquery.js"></script>
-	<script type="text/javascript" src="data.js" ></script>
-    <meta name="keywords" content="keyword1,keyword2,keyword3">
-    <meta name="description" content="this is my page">
+	<script id="src" type="text/javascript" src="data.js" ></script>
+	<script type="text/javascript" src="render.js" ></script>
+	<script type="text/javascript" src="add_and_delete.js" ></script>
+	<script type="text/javascript" src="privateFunc.js" ></script>
     <meta name="content-type" content="text/html; charset=GBK">
   </head> 
   <body>
 	<p> 
-		起点 <input type="text" value="" id = "node1"> 终点 <input type="text" value="" id = "node2">
-		关系 <input type="text" value="" id = "relation"> 权重 <input type="text" value="" id = "weight">
+		起点 <input type="text" value="" id="node1"> 终点 <input type="text" value="" id="node2">
+		关系 <input type="text" value="" id="relation"> 权重 <input type="text" value="" id="weight">
 		<button id="b1">连接节点</button>
 		<button id="b2">删除连线</button>
 	</p>
 	<p>
-		节点<input type="text" value="" id = "node3">
+		节点<input type="text" value="" id="node3">
 		<button id="b3">删除节点</button>
 		<button id="b4">添加节点</button>
-		<button id="b5">前进</button>
 		<form οninput="x.value=parseInt(a.value)+parseInt(b.value)">
 			<input id="slide" type="range" min=0 max=0 id="a" value="0" oninput="doSlide()">			
 		</form>
 	</p>
     <script>
-    	var marge = {top:10,bottom:10,left:10,right:10};
-		var width = 960, height = 560;
+		//初始化部分
+    	var marge={top:10,bottom:10,left:10,right:10};
+		var width=960, height=560;
+		//当前数据在data.js list中的位置（滑条控制）
 		var forward=0;
-		var edges=edges_list[forward];
-		var nodes=nodes_list[forward];
-    	//颜色比例尺 初始化力导向图 边 边文字 节点组（节点+节点文字）
+		//边数据与节点数据 data.js
+		var edges=[].concat(edges_list[forward]);
+		var nodes=[].concat(nodes_list[forward]);
+    	//  颜色比例尺    初始化力导向图    边    边文字  节点组（节点+节点文字）
 		var colorScale, forceSimulation, links, linksText, gs;
 		d3.select(document.getElementById("slide")).attr("max", edges_list.length-1);
-		var g = d3.select("body")
+		var g=d3.select("body")
 				.append("svg")
 				.attr("width",width)
 				.attr("height",height)
 				.append("g")
 				.attr("transform","translate("+marge.top+","+marge.left+")");
-		colorScale = d3.scaleOrdinal()
+		colorScale=d3.scaleOrdinal()
 			.domain(d3.range(nodes.length))
 			.range(d3.schemeCategory10);
+		//初始绘制 render.js
 		render();
-		//绘制函数
-		function render(){
-			//力导向图
-			forceSimulation = d3.forceSimulation()
-					.force("link",d3.forceLink())
-					.force("charge",d3.forceManyBody().strength(-500).distanceMax(250))
-					.force("center",d3.forceCenter().x(width/2).y(height/2))
-					.nodes(nodes);
-			//边长度
-			forceSimulation.force("link")
-						.links(edges)
-						.distance((d) => d.value*30);
-			//边
-			links=g.selectAll("line")
-				.data(edges, d => d)
-				.join(
-					enter => enter.append("line")
-						.attr("stroke",(d,i) => colorScale(i))
-						.attr("stroke-width",2),
-					update => update
-						.attr("stroke",(d,i) => colorScale(i))
-						.attr("stroke-width",2),
-					exit => exit
-						.remove()
-				);
-			//边文字
-			linksText=g.selectAll("text")
-				.data(edges, d => d)
-				.join(
-					enter => enter.append("text")
-						.text((d) => d.relation),
-					update => update
-						.text((d) => d.relation),
-					exit => exit
-						.remove()
-				);
-			//节点组
-			gs=g.selectAll("g")
-				.data(nodes, d => d)
-				.join(
-					enter => enter.append("g")
-						.attr("transform", (d) => "translate("+d.x+","+d.y+")")
-						.call(d3.drag()
-							.on("start",started)
-							.on("drag",dragged)
-							.on("end",ended)
-						),
-					update => update
-						.attr("transform", (d) => "translate("+d.x+","+d.y+")")
-						.call(d3.drag()
-							.on("start",started)
-							.on("drag",dragged)
-							.on("end",ended)
-						),
-					exit => exit
-						.remove()
-				);
-			//节点
-			gs.append("circle")
-				.attr("r",10)
-				.attr("fill",(d,i) => colorScale(i));
-			//节点文字
-			gs.append("text")
-				.attr("x",-10)
-				.attr("y",-20)
-				.attr("dy",10)
-				.text((d) => d.name);
 
-			forceSimulation.on("tick", () => {
-				links
-					.attr("x1",(d) => d.source.x)
-					.attr("y1",(d) => d.source.y)
-					.attr("x2",(d) => d.target.x)
-					.attr("y2",(d) => d.target.y);
-				linksText
-					.attr("x", (d) => (d.source.x+d.target.x)/2)
-					.attr("y", (d) => (d.source.y+d.target.y)/2),
-				gs
-					.attr("transform", (d) => "translate("+d.x+","+d.y+")");
-			});
-		}
-		//连接节点
+		//页面UI部分		
+		//连接节点 add_and_delete.js
 		d3.select(document.getElementById("b1")).on("click", function() {
-			var node1=document.getElementById("node1").value;
-			var node2=document.getElementById("node2").value;
 			var relations=document.getElementById("relation").value;
 			var weight=parseInt(document.getElementById("weight").value);
-			var s=getNodeIndex(node1);
-			var t=getNodeIndex(node2);
-			if(s!=-1&&t!=-1&&relations!=""&&weight>0){
-				var found=0;
-				for(var i=0;i<edges.length;i++){
-					if(edges[i].source.name==node1&&edges[i].target.name==node2
-					||edges[i].target.name==node1&&edges[i].source.name==node2){
-						found=1;
-					}
-				}
-				if(found==0){
-					edges.push({source:s, target:t,relation:relations,value:weight});
-					render();
-				}
-			}
+			var s=getNodeIndex(document.getElementById("node1").value);
+			var t=getNodeIndex(document.getElementById("node2").value);
+			add_edge(s, t, relations, weight);
 		});
-		//删除连线
+		//删除连线 add_and_delete.js
 		d3.select(document.getElementById("b2")).on("click", function() {
 			var node1=document.getElementById("node1").value;
 			var node2=document.getElementById("node2").value;
-			if(getNodeIndex(node1)!=-1&&getNodeIndex(node2)!=-1){
-				var found=0;
-				for(var i=0;i<edges.length;i++){
-					if(edges[i].source.name==node1&&edges[i].target.name==node2
-					||edges[i].target.name==node1&&edges[i].source.name==node2){
-						found=1;
-						edges.splice(i,1);
-					}
-				}
-				g.selectAll("line").each(function(d){
-					if(d.source.name==node1&&d.target.name==node2
-					||d.target.name==node1&&d.source.name==node2){
-						d3.select(d).remove();
-					}
-				});
-				if(found==1){
-					render();
-				}
-        	}
+			delete_edge(node1, node2);
 		});
-		//删除节点
-		var new_name=1;
+		//删除节点 add_and_delete.js
 		d3.select(document.getElementById("b3")).on("click", function() {
 			var node3=document.getElementById("node3").value;
-			var node3Index=getNodeIndex(node3);
-			if(node3Index!=-1){
-				nodes.splice(node3Index,1);
-				var len=edges.length;
-				for(var i=0;i<len;i++){
-					if(edges[i].source.name==node3|| edges[i].target.name==node3){
-						edges.splice(i,1);
-						i--;
-						len--;
-					}
-				}
-				render();
-			}
+			delete_node(node3);
 		});
-		//添加节点
+		//添加节点 add_and_delete.js
 		d3.select(document.getElementById("b4")).on("click", function() {
 			var node3=document.getElementById("node3").value;
-			if(node3!=""){
-				nodes.push({name:node3});
-			}
-			render();
+			add_node(node3);
 		});
-		//前进
-		d3.select(document.getElementById("b5")).on("click", function() {
-			edges=edges_list[forward];
-			nodes=nodes_list[forward];
-			if(forward<edges_list.length-1){
-				forward++;
-			}
-			render();
-		});
-		//滚动条
+		//滑条
 		function doSlide(){
 			forward=document.getElementById("slide").value;
-			edges=edges_list[forward];
-			nodes=nodes_list[forward];
-			render();
-		}
-		//根据名称获取节点索引
-		function getNodeIndex(name){
-			for(var i=0;i<nodes.length;i++){
-				if(nodes[i].name==name){
-					return i;
-				}
-			}
-			return -1;
-		}
-		function started(d){
-			if(!d3.event.active){
-				forceSimulation.alphaTarget(0.4).restart();
-			}
-			d.fx = d.x;
-			d.fy = d.y;
-		}
-		function dragged(d){
-			d.fx = d3.event.x;
-			d.fy = d3.event.y;
-		}
-		function ended(d){
-			if(!d3.event.active){
-				forceSimulation.alphaTarget(0);
-			}
-			d.fx = null;
-			d.fy = null;
+			update_nodes();
+			update_edges()
 		}
     </script>
   </body>
